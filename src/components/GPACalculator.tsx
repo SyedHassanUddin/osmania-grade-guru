@@ -1,11 +1,8 @@
 import { useState } from 'react';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Calculator, GraduationCap, TrendingUp, AlertTriangle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface Subject {
   code: string;
@@ -25,17 +22,14 @@ export const GPACalculator = () => {
   const [hallticket, setHallticket] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<GPAResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
     setResult(null);
     
     try {
-      // Note: Replace with your actual FastAPI backend URL
-      const response = await fetch('/api/fetch_results', {
+      const response = await fetch('/fetch_results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,22 +38,15 @@ export const GPACalculator = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error('Failed to fetch results');
       }
 
       const data = await response.json();
       setResult(data);
-      
-      toast({
-        title: "Results fetched successfully",
-        description: `GPA: ${data.gpa.toFixed(2)}`,
-      });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch results';
-      setError(errorMessage);
       toast({
         title: "Error",
-        description: errorMessage,
+        description: "Failed to fetch results. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -67,183 +54,123 @@ export const GPACalculator = () => {
     }
   };
 
-  const getGradeColor = (grade: string) => {
-    switch (grade) {
-      case 'O': return 'bg-gradient-accent text-accent-foreground';
-      case 'A+': case 'A': return 'bg-success text-success-foreground';
-      case 'B': return 'bg-primary text-primary-foreground';
-      case 'C': return 'bg-warning text-warning-foreground';
-      case 'P': return 'bg-secondary text-secondary-foreground';
-      case 'F': return 'bg-destructive text-destructive-foreground';
-      default: return 'bg-muted text-muted-foreground';
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-secondary p-6">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center space-x-3">
-            <GraduationCap className="h-10 w-10 text-primary" />
-            <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Osmania University GPA Calculator
-            </h1>
-          </div>
-          <p className="text-muted-foreground text-lg">
-            Enter your hall ticket number to calculate your GPA and view results
-          </p>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+      {/* Header */}
+      {!result && (
+        <div className="w-full max-w-md text-center mb-8">
+          <h1 className="text-6xl font-light text-foreground mb-8">GPA</h1>
         </div>
+      )}
 
-        {/* Input Form */}
-        <Card className="shadow-medium">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Calculator className="h-5 w-5" />
-              <span>Enter Hall Ticket Details</span>
-            </CardTitle>
-            <CardDescription>
-              Enter your hall ticket number to fetch your academic results
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="hallticket">Hall Ticket Number</Label>
-                <Input
-                  id="hallticket"
-                  type="text"
-                  value={hallticket}
-                  onChange={(e) => setHallticket(e.target.value)}
-                  placeholder="160423737303"
-                  required
-                  className="text-lg"
-                />
-              </div>
+      {/* Search Form */}
+      {!result && (
+        <div className="w-full max-w-md">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="relative">
+              <Input
+                type="text"
+                value={hallticket}
+                onChange={(e) => setHallticket(e.target.value)}
+                placeholder="Enter your 12-digit Hall Ticket Number"
+                required
+                className="w-full h-14 px-6 text-lg border-2 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent"
+                maxLength={12}
+              />
+            </div>
+            <div className="flex justify-center space-x-4">
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
+                className="px-8 py-3 text-sm rounded-md hover:shadow-md transition-shadow"
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Fetching Results...
+                    Checking...
                   </>
                 ) : (
-                  <>
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Calculate GPA
-                  </>
+                  'Check GPA'
                 )}
               </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Error Display */}
-        {error && (
-          <Card className="border-destructive shadow-medium">
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2 text-destructive">
-                <AlertTriangle className="h-5 w-5" />
-                <span className="font-medium">Error: {error}</span>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Results Display */}
-        {result && (
-          <div className="space-y-6">
-            {/* GPA Summary */}
-            <Card className="shadow-strong bg-gradient-primary text-primary-foreground">
-              <CardContent className="pt-6">
-                <div className="text-center space-y-4">
-                  <h2 className="text-3xl font-bold">Your GPA</h2>
-                  <div className="text-6xl font-bold">{result.gpa.toFixed(2)}</div>
-                  {result.backlogs.length > 0 && (
-                    <div className="flex items-center justify-center space-x-2">
-                      <AlertTriangle className="h-5 w-5" />
-                      <span>Backlogs: {result.backlogs.length}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Backlogs */}
-            {result.backlogs.length > 0 && (
-              <Card className="shadow-medium">
-                <CardHeader>
-                  <CardTitle className="text-destructive flex items-center space-x-2">
-                    <AlertTriangle className="h-5 w-5" />
-                    <span>Backlog Subjects</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {result.backlogs.map((subject, index) => (
-                      <Badge key={index} variant="destructive">
-                        {subject}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Subject Details */}
-            <Card className="shadow-medium">
-              <CardHeader>
-                <CardTitle>Subject-wise Results</CardTitle>
-                <CardDescription>
-                  Detailed breakdown of all subjects and grades
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-2">Subject Code</th>
-                        <th className="text-left py-3 px-2">Subject Name</th>
-                        <th className="text-center py-3 px-2">Credits</th>
-                        <th className="text-center py-3 px-2">Grade</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {result.subjects.map((subject, index) => (
-                        <tr key={index} className="border-b">
-                          <td className="py-3 px-2 font-mono">{subject.code}</td>
-                          <td className="py-3 px-2">{subject.name}</td>
-                          <td className="py-3 px-2 text-center">{subject.credits}</td>
-                          <td className="py-3 px-2 text-center">
-                            <Badge className={getGradeColor(subject.grade)}>
-                              {subject.grade}
-                            </Badge>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Backend Note */}
-        <Card className="shadow-soft bg-muted">
-          <CardContent className="pt-6">
-            <div className="text-sm text-muted-foreground">
-              <p className="font-medium mb-2">Note for Backend Implementation:</p>
-              <p>This frontend is designed to work with your FastAPI backend. The current implementation makes requests to <code>/api/fetch_results</code>. 
-              Since Lovable can't run Python backends, consider implementing the scraping logic using Supabase Edge Functions as an alternative.</p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </form>
+        </div>
+      )}
+
+      {/* Results */}
+      {result && (
+        <div className="w-full max-w-4xl space-y-8">
+          {/* Back to search */}
+          <div className="text-center">
+            <Button
+              variant="outline"
+              onClick={() => setResult(null)}
+              className="mb-6"
+            >
+              ← New Search
+            </Button>
+          </div>
+
+          {/* GPA Display */}
+          <div className="text-center">
+            <div className="text-6xl font-bold text-foreground mb-2">
+              {result.gpa.toFixed(2)}
+            </div>
+            <div className="text-lg text-muted-foreground">Your GPA</div>
+          </div>
+
+          {/* Backlogs */}
+          {result.backlogs.length > 0 && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+              <h3 className="font-semibold text-destructive mb-3">
+                Backlog Subjects ({result.backlogs.length})
+              </h3>
+              <div className="space-y-1">
+                {result.backlogs.map((subject, index) => (
+                  <div key={index} className="text-destructive font-medium">
+                    {subject}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Subjects Table */}
+          <div className="bg-card border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted">
+                  <tr>
+                    <th className="text-left p-4 font-medium">Subject Code</th>
+                    <th className="text-left p-4 font-medium">Subject Name</th>
+                    <th className="text-center p-4 font-medium">Credits</th>
+                    <th className="text-center p-4 font-medium">Grade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.subjects.map((subject, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="p-4 font-mono text-sm">{subject.code}</td>
+                      <td className="p-4">{subject.name}</td>
+                      <td className="p-4 text-center">{subject.credits}</td>
+                      <td className="p-4 text-center">
+                        <span className={`inline-block px-3 py-1 rounded text-sm font-medium ${
+                          subject.grade === 'F' 
+                            ? 'bg-destructive text-destructive-foreground'
+                            : 'bg-primary text-primary-foreground'
+                        }`}>
+                          {subject.grade}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

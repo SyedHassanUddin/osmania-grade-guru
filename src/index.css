@@ -8,49 +8,35 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 240 10% 98%;
-    --foreground: 217 28% 15%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 13%;
 
     --card: 0 0% 100%;
-    --card-foreground: 217 28% 15%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 217 28% 15%;
+    --popover-foreground: 0 0% 13%;
 
-    --primary: 217 100% 35%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 15% 92%;
-    --secondary-foreground: 217 28% 25%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 217 15% 95%;
-    --muted-foreground: 217 12% 45%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 45 100% 51%;
-    --accent-foreground: 217 28% 15%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 13%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 221 83% 53%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 217 28% 15%;
-
-    --border: 217 15% 88%;
-    --input: 217 15% 88%;
-    --ring: 217 100% 35%;
-
-    /* Academic theme gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 100% 35%), hsl(217 80% 45%));
-    --gradient-secondary: linear-gradient(135deg, hsl(217 15% 92%), hsl(217 25% 88%));
-    --gradient-accent: linear-gradient(135deg, hsl(45 100% 51%), hsl(45 90% 60%));
-    
-    /* Academic shadows */
-    --shadow-soft: 0 2px 10px hsl(217 20% 70% / 0.1);
-    --shadow-medium: 0 4px 20px hsl(217 20% 70% / 0.15);
-    --shadow-strong: 0 8px 30px hsl(217 20% 70% / 0.2);
+    --radius: 6px;
 
     --radius: 0.5rem;
 
